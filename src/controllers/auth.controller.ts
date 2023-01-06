@@ -4,7 +4,6 @@ import bcrypt from 'bcrypt';
 import { ResponseEntity } from '../interface/response-entity';
 import { errorResponse } from '../utility/error-response';
 import { IRegister } from '../interface/register';
-import { ILogin } from '../interface/login';
 import {
 	generateAccessToken,
 	generateRefreshToken,
@@ -12,6 +11,7 @@ import {
 import { CookieType } from '../interface/cookie-type';
 import { IUser } from '../interface/user';
 import { avatarGenerator } from '../utility/avatar-generator';
+import { LoginUserInput } from '../utility/login-validation';
 
 export interface IUserResponse {
 	username: string | undefined;
@@ -68,7 +68,7 @@ export const register = (role?: string) => async (
 };
 
 export const login = async (
-	req: TypedRequest<Record<string, never>, ILogin>,
+	req: TypedRequest<Record<string, never>, LoginUserInput>,
 	res: TypedResponse<LoginResponseType>
 ) => {
 	try {
@@ -92,27 +92,27 @@ const loginSuccessful = async (
     password: string,
 	res: TypedResponse<LoginResponseType>
 ) => {
-	const isMatch = await bcrypt.compare(password, user.password);
+	const isValid = await bcrypt.compare(password, user.password);
 
-	if (!isMatch) {
+	// Check if password is valid
+	if (!isValid) {
 		return res.status(500).json({ message: 'Password is incorrect!' });
 	}
 
 	const accessToken = generateAccessToken({ id: user._id });
-	const refresh_token = generateRefreshToken({ id: user._id }, res);
+	const refreshToken = generateRefreshToken({ id: user._id }, res);
 
 	await UserSchema.findOneAndUpdate(
 		{ _id: user._id },
 		{
-			rf_token: refresh_token,
+			refreshToken: refreshToken,
 		}
 	);
 
-	res.cookie('refresh-token', refresh_token, {
+	res.cookie('refresh-token', refreshToken, {
 		httpOnly: true,
-		path: `/v1/api/auth/refresh-token`,
-		secure: false,
-		maxAge: 30 * 24 * 60 * 60 * 1000, // 30 Days
+		maxAge: 24 * 60 * 60 * 1000,
+		// secure: true
 	});
 
 	return res.status(200).json({

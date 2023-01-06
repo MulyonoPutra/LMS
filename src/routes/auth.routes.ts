@@ -3,7 +3,8 @@ import { register, login } from '../controllers';
 import { TypedRequest, TypedResponse } from '../utility/typed-controller';
 import { IRegister } from '../interface/register';
 import { RegisterResponseType } from '../controllers/auth.controller';
-import { hasAccess } from '../constants/role-type';
+import { validate } from '../middleware/validation';
+import { loginUserSchema } from '../utility/login-validation';
 
 const router = Router();
 
@@ -19,6 +20,6 @@ type RegisterTypeResponse = TypedResponse<RegisterResponseType>;
 
 router.post('/register-admin', register('admin'));
 router.post('/register', register());
-router.post('/login', login);
+router.post('/login', validate(loginUserSchema), login);
 
 export default router;
