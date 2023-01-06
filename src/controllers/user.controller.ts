@@ -5,15 +5,16 @@ import { errorResponse } from '../utility/error-response';
 import { Request } from 'express';
 import { IUserDetails } from '../interface/user';
 
-export type UserResponseType = TypedResponse<{ message: string } | Partial<ResponseEntity<IUserDetails[]>>>;
+export type UserResponseType = TypedResponse<
+	{ message: string } | Partial<ResponseEntity<IUserDetails[]>>
+>;
 export const findAll = async (req: Request, res: UserResponseType) => {
-
 	const hideAttributes = {
 		__v: 0,
 		createdAt: 0,
 		updatedAt: 0,
 		password: 0,
-		refreshToken: 0
+		refreshToken: 0,
 	};
 
 	try {

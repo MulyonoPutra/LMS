@@ -1,7 +1,7 @@
 import mongoose, { ConnectOptions } from 'mongoose';
 
 export const DBConnection = () => {
-	mongoose.set("strictQuery", false);
+	mongoose.set('strictQuery', false);
 	mongoose.connect(process.env.MONGODB_URL!, {
 		useNewUrlParser: true,
 		useUnifiedTopology: true,

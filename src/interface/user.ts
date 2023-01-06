@@ -17,7 +17,7 @@ export interface IUser extends Document {
 }
 
 export interface IUserDetails extends IUser {
-	_id: string
+	_id: string;
 }
 
 export interface UserRequest extends Request {

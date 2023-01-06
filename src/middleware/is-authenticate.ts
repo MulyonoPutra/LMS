@@ -5,7 +5,11 @@ import { Environment } from '../config/environment';
 import { IDecoded } from '../interface/decoded';
 import { UserRequest } from '../interface/user';
 
-export const isAuthenticate = async (req: UserRequest, res: Response, next: NextFunction) => {
+export const isAuthenticate = async (
+	req: UserRequest,
+	res: Response,
+	next: NextFunction
+) => {
 	try {
 		const { authorization } = req.headers;
 
@@ -15,14 +19,19 @@ export const isAuthenticate = async (req: UserRequest, res: Response, next: Next
 				return res.status(400).json({ message: 'No Token Provided' });
 			}
 
-			const decoded = jwt.verify(token, Environment.accessTokenSecret) as IDecoded;
+			const decoded = jwt.verify(
+				token,
+				Environment.accessTokenSecret
+			) as IDecoded;
 			if (!decoded) {
 				return res
 					.status(400)
 					.json({ message: 'Invalid Authentication' });
 			}
 
-			const user = await UserSchema.findOne({ _id: decoded.id }).select('-password');
+			const user = await UserSchema.findOne({ _id: decoded.id }).select(
+				'-password'
+			);
 			if (!user) {
 				return res
 					.status(400)

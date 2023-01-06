@@ -32,40 +32,42 @@ export type LoginResponseType =
 	| Partial<ResponseEntity<ILoginResponse>>
 	| Partial<CookieType>;
 
-export const register = (role?: string) => async (
-	req: TypedRequest<Record<string, never>, IRegister>,
-	res: TypedResponse<RegisterResponseType>,
-) => {
-	try {
-		const { username, account, password } = req.body;
-		const users = await UserSchema.findOne({ account });
-		if (users) {
-			return res.status(400).json({
-				message: 'User already exists',
+export const register =
+	(role?: string) =>
+	async (
+		req: TypedRequest<Record<string, never>, IRegister>,
+		res: TypedResponse<RegisterResponseType>
+	) => {
+		try {
+			const { username, account, password } = req.body;
+			const users = await UserSchema.findOne({ account });
+			if (users) {
+				return res.status(400).json({
+					message: 'User already exists',
+				});
+			}
+
+			const salt = await bcrypt.genSalt(Number(10));
+			const hashPassword = await bcrypt.hash(password, salt);
+
+			await new UserSchema({
+				username,
+				account,
+				password: hashPassword,
+				avatar: avatarGenerator(),
+				role,
+			}).save();
+
+			const data = { username, account };
+
+			return res.status(200).json({
+				message: 'Success',
+				data,
 			});
+		} catch (e) {
+			return errorResponse(e, res);
 		}
-
-		const salt = await bcrypt.genSalt(Number(10));
-		const hashPassword = await bcrypt.hash(password, salt);
-
-		await new UserSchema({
-			username,
-			account,
-			password: hashPassword,
-			avatar: avatarGenerator(),
-			role,
-		}).save();
-
-		const data = { username, account };
-
-		return res.status(200).json({
-			message: 'Success',
-			data,
-		});
-	} catch (e) {
-		return errorResponse(e, res);
-	}
-};
+	};
 
 export const login = async (
 	req: TypedRequest<Record<string, never>, LoginUserInput>,
@@ -81,15 +83,14 @@ export const login = async (
 		}
 
 		await loginSuccessful(user, password, res);
-
 	} catch (e) {
 		return errorResponse(e, res);
 	}
 };
 
 const loginSuccessful = async (
-    user: IUser,
-    password: string,
+	user: IUser,
+	password: string,
 	res: TypedResponse<LoginResponseType>
 ) => {
 	const isValid = await bcrypt.compare(password, user.password);
@@ -119,7 +120,7 @@ const loginSuccessful = async (
 		message: 'Success',
 		data: { accessToken, user },
 	});
-}
+};
 
 // NOTE:
 // - https://codevoweb.com/node-typescript-mongodb-jwt-authentication/
