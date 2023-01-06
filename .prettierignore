@@ -1,0 +1,9 @@
+# Ignore artifacts:
+node_modules
+yarn.lock
+tsconfig.json
+.eslintrc
+.eslintignore
+esbuild.js
+.env
+package.json
