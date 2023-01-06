@@ -1,4 +1,4 @@
-import express, { Express, Request, Response } from 'express';
+import express, { Express } from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -16,10 +16,6 @@ app.use(express.json());
 app.use(helmet());
 app.use(routes);
 app.use(cookieParser());
-
-app.get('/', (req: Request, res: Response) => {
-	res.send('Hello World!');
-});
 
 app.listen(port, () => {
 	console.log(`Server listening on port ${port}`);
