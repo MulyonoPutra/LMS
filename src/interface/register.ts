@@ -3,3 +3,8 @@ export interface IRegister {
 	account: string;
 	password: string;
 }
+
+export interface IRegisterResponse {
+	username: string | undefined;
+	account: string | undefined;
+}

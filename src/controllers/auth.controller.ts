@@ -1,60 +1,49 @@
-import { TypedResponse, TypedRequest } from '../utility/typed-controller';
-import UserSchema from '../models/user.schema';
 import bcrypt from 'bcrypt';
-import { ResponseEntity } from '../interface/response-entity';
+import jwt from 'jsonwebtoken';
+
+import { Environment } from '../config/environment';
+import { IDecoded } from '../interface/decoded';
+import { IUser } from '../interface/user';
+import UserSchema from '../models/user.schema';
+import { avatarGenerator } from '../utility/avatar-generator';
 import { errorResponse } from '../utility/error-response';
-import { IRegister } from '../interface/register';
 import {
 	generateAccessToken,
 	generateRefreshToken,
 } from '../utility/generate-token';
-import { CookieType } from '../interface/cookie-type';
-import { IUser } from '../interface/user';
-import { avatarGenerator } from '../utility/avatar-generator';
-import { LoginUserInput } from '../utility/login-validation';
-
-export interface IUserResponse {
-	username: string | undefined;
-	account: string | undefined;
-}
-
-export interface ILoginResponse {
-	accessToken: string;
-	user: IUser | undefined;
-}
-
-export type RegisterResponseType =
-	| { message: string }
-	| Partial<ResponseEntity<IUserResponse>>;
-
-export type LoginResponseType =
-	| { message: string }
-	| Partial<ResponseEntity<ILoginResponse>>
-	| Partial<CookieType>;
+import {
+	LoginRequestType,
+	LoginResponseType,
+	LogoutRequestType,
+	NewAccessTokenResponseType,
+	RefreshTokenRequestType,
+	RefreshTokenResponseType,
+	RegisterRequestType,
+	RegisterResponseType,
+} from '../type/auth.type';
 
 export const register =
 	(role?: string) =>
-	async (
-		req: TypedRequest<Record<string, never>, IRegister>,
-		res: TypedResponse<RegisterResponseType>
-	) => {
+	async (req: RegisterRequestType, res: RegisterResponseType) => {
 		try {
 			const { username, account, password } = req.body;
 			const users = await UserSchema.findOne({ account });
+
 			if (users) {
-				return res.status(400).json({
-					message: 'User already exists',
-				});
+				return res
+					.status(400)
+					.json({ message: 'User already exists!' });
 			}
 
 			const salt = await bcrypt.genSalt(Number(10));
 			const hashPassword = await bcrypt.hash(password, salt);
+			const avatar = avatarGenerator();
 
 			await new UserSchema({
 				username,
 				account,
 				password: hashPassword,
-				avatar: avatarGenerator(),
+				avatar,
 				role,
 			}).save();
 
@@ -69,10 +58,7 @@ export const register =
 		}
 	};
 
-export const login = async (
-	req: TypedRequest<Record<string, never>, LoginUserInput>,
-	res: TypedResponse<LoginResponseType>
-) => {
+export const login = async (req: LoginRequestType, res: LoginResponseType) => {
 	try {
 		const { account, password } = req.body;
 		const user = await UserSchema.findOne({ account });
@@ -91,7 +77,7 @@ export const login = async (
 const loginSuccessful = async (
 	user: IUser,
 	password: string,
-	res: TypedResponse<LoginResponseType>
+	res: LoginResponseType
 ) => {
 	const isValid = await bcrypt.compare(password, user.password);
 
@@ -103,23 +89,85 @@ const loginSuccessful = async (
 	const accessToken = generateAccessToken({ id: user._id });
 	const refreshToken = generateRefreshToken({ id: user._id }, res);
 
-	await UserSchema.findOneAndUpdate(
-		{ _id: user._id },
-		{
-			refreshToken: refreshToken,
-		}
-	);
+	await UserSchema.findOneAndUpdate({ _id: user._id }, { refreshToken });
 
-	res.cookie('refresh-token', refreshToken, {
+	res.cookie('refreshToken', refreshToken, {
 		httpOnly: true,
-		maxAge: 24 * 60 * 60 * 1000,
-		// secure: true
+		maxAge: 24 * 60 * 60 * 1000, // secure: true
 	});
 
 	return res.status(200).json({
 		message: 'Success',
 		data: { accessToken, user },
 	});
+};
+
+export const refreshToken = async (
+	req: RefreshTokenRequestType,
+	res: RefreshTokenResponseType
+) => {
+	try {
+		const token = req.cookies?.refreshToken;
+		if (!token) {
+			return res.status(200).json({
+				message: 'Refresh token not found! Please login again.',
+			});
+		}
+
+		const decoded = jwt.verify(
+			token,
+			`${Environment.refreshTokenSecret}`
+		) as IDecoded;
+		if (!decoded.id) {
+			return res.status(400).json({
+				message: 'Refresh token is invalid!',
+			});
+		}
+
+		const user = await UserSchema.findOne({ _id: decoded.id }).select(
+			'+password'
+		);
+		if (!user) {
+			return res.status(400).json({
+				message: 'This account does not exist!',
+			});
+		}
+
+		const newAccessToken = generateAccessToken({ id: user._id });
+
+		return res.status(200).json({ accessToken: newAccessToken });
+	} catch (e) {
+		console.log(e);
+	}
+};
+
+export const logout = async (
+	req: LogoutRequestType,
+	res: NewAccessTokenResponseType
+) => {
+	try {
+		const token = req.cookies?.refreshToken;
+		if (!token) {
+			return res.sendStatus(204);
+		}
+
+		const user = await UserSchema.find({ refreshToken: token });
+		if (!user) {
+			return res.status(400).json({
+				message: 'User not found!',
+			});
+		}
+
+		const userId = user[0]?._id;
+		await UserSchema.findOneAndUpdate(
+			{ _id: userId },
+			{ refreshToken: null }
+		);
+		res.clearCookie('refreshToken');
+		return res.status(200).json({ message: 'Successfully logout!' });
+	} catch (e) {
+		return errorResponse(e, res);
+	}
 };
 
 // NOTE:

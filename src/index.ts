@@ -14,8 +14,8 @@ const port: string = process.env.PORT ?? '3000';
 app.use(cors());
 app.use(express.json());
 app.use(helmet());
-app.use(routes);
 app.use(cookieParser());
+app.use(routes);
 
 app.listen(port, () => {
 	console.log(`Server listening on port ${port}`);

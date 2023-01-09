@@ -1,13 +1,9 @@
-import { TypedResponse } from '../utility/typed-controller';
 import UserSchema from '../models/user.schema';
-import { ResponseEntity } from '../interface/response-entity';
 import { errorResponse } from '../utility/error-response';
 import { Request } from 'express';
 import { IUserDetails } from '../interface/user';
+import { UserResponseType } from '../type/user.type';
 
-export type UserResponseType = TypedResponse<
-	{ message: string } | Partial<ResponseEntity<IUserDetails[]>>
->;
 export const findAll = async (req: Request, res: UserResponseType) => {
 	const hideAttributes = {
 		__v: 0,

@@ -1,4 +1,5 @@
 import { CookieOptions } from 'express';
+import { IRefreshToken } from './token';
 
 export interface CookieType {
 	name?: string;
@@ -9,4 +10,8 @@ export interface CookieType {
 	domain?: string;
 	expires?: Date;
 	options?: CookieOptions;
+}
+
+export interface ICookieRequest {
+	cookies: IRefreshToken;
 }

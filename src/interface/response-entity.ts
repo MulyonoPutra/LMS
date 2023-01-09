@@ -3,3 +3,7 @@ export interface ResponseEntity<T> {
 	message: string;
 	data?: T;
 }
+
+export interface ResponseMessage {
+	message: string;
+}
