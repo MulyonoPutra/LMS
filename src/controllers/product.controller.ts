@@ -2,12 +2,13 @@ import ProductSchema from '../models/product.schema';
 import { Request } from 'express';
 import { errorResponse } from '../utility/error-response';
 import {
+	FindOneProductResponseType,
 	NewProductResponseType,
 	ProductRequestType,
-	ProductResponseType,
+	ProductResponseType
 } from '../type/product.type';
 
-export const findAll = async (req: Request, res: ProductResponseType) => {
+export const findAll = async (res: ProductResponseType) => {
 	try {
 		const data = await ProductSchema.find({});
 		return res.status(200).json({
@@ -34,3 +35,16 @@ export const create = async (
 		errorResponse(e, res);
 	}
 };
+
+export const findById = async (req: Request, res: FindOneProductResponseType) => {
+	try {
+		const { id } = req.params;
+		const data = await ProductSchema.findById(id);
+		return res.status(200).json({
+			message: 'Data successfully retrieved',
+			data
+		});
+	} catch (e) {
+		errorResponse(e, res);
+	}
+}
