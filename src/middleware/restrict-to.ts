@@ -1,5 +1,9 @@
-import { Response, NextFunction } from 'express';
-import { UserRequest } from '../interface/user';
+import { Response, NextFunction, Request } from 'express';
+import { IUser } from '../interface/user';
+
+export interface UserRequest extends Request {
+	user?: IUser;
+}
 
 export const RestrictTo =
 	(allowed: string) =>

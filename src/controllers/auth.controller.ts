@@ -22,8 +22,7 @@ import {
 	RegisterResponseType,
 } from '../type/auth.type';
 
-export const register =
-	(role?: string) =>
+export const register = (role?: string) =>
 	async (req: RegisterRequestType, res: RegisterResponseType) => {
 		try {
 			const { username, account, password } = req.body;
@@ -74,11 +73,7 @@ export const login = async (req: LoginRequestType, res: LoginResponseType) => {
 	}
 };
 
-const loginSuccessful = async (
-	user: IUser,
-	password: string,
-	res: LoginResponseType
-) => {
+const loginSuccessful = async (user: IUser, password: string, res: LoginResponseType) => {
 	const isValid = await bcrypt.compare(password, user.password);
 
 	// Check if password is valid
@@ -102,10 +97,7 @@ const loginSuccessful = async (
 	});
 };
 
-export const refreshToken = async (
-	req: RefreshTokenRequestType,
-	res: RefreshTokenResponseType
-) => {
+export const refreshToken = async (req: RefreshTokenRequestType, res: RefreshTokenResponseType) => {
 	try {
 		const token = req.cookies?.refreshToken;
 		if (!token) {
@@ -114,19 +106,14 @@ export const refreshToken = async (
 			});
 		}
 
-		const decoded = jwt.verify(
-			token,
-			`${Environment.refreshTokenSecret}`
-		) as IDecoded;
+		const decoded = jwt.verify(token, `${Environment.refreshTokenSecret}`) as IDecoded;
 		if (!decoded.id) {
 			return res.status(400).json({
 				message: 'Refresh token is invalid!',
 			});
 		}
 
-		const user = await UserSchema.findOne({ _id: decoded.id }).select(
-			'+password'
-		);
+		const user = await UserSchema.findOne({ _id: decoded.id }).select('+password');
 		if (!user) {
 			return res.status(400).json({
 				message: 'This account does not exist!',
@@ -141,10 +128,7 @@ export const refreshToken = async (
 	}
 };
 
-export const logout = async (
-	req: LogoutRequestType,
-	res: NewAccessTokenResponseType
-) => {
+export const logout = async (req: LogoutRequestType, res: NewAccessTokenResponseType) => {
 	try {
 		const token = req.cookies?.refreshToken;
 		if (!token) {
