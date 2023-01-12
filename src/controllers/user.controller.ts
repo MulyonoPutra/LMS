@@ -1,10 +1,9 @@
 import { NextFunction, Request } from 'express';
-import AppError from 'src/utility/app-error';
 
 import { IUserDetails } from '../interface/user';
 import UserSchema from '../models/user.schema';
 import { FindOneUserResponseType, UserResponseType } from '../type/user.type';
-import { errorResponse } from '../utility/error-response';
+import AppError from '../utility/app-error';
 
 const hideAttributes = {
 	__v: 0,
@@ -14,7 +13,7 @@ const hideAttributes = {
 	refreshToken: 0,
 };
 
-export const findAll = async (res: UserResponseType, next: NextFunction) => {
+export const findAll = async (req: Request, res: UserResponseType, next: NextFunction) => {
 	try {
 		const data: IUserDetails[] = await UserSchema.find({}, hideAttributes);
 		return res.status(200).json({

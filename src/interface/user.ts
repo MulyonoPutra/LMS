@@ -20,4 +20,6 @@ export interface IUserDetails extends IUser {
 	_id: string;
 }
 
-
+export interface UserRequest extends Request {
+	user?: IUser;
+}
