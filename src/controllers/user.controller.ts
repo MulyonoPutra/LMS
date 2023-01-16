@@ -60,7 +60,7 @@ export const update = async (req: Request, res: Response, next: NextFunction) =>
 			publicId = user.images.public_id;
 		}
 
-		if (publicId !== undefined) {
+		if (publicId !== undefined && publicId !== null) {
 			await cloudinary.uploader.destroy(publicId);
 		}
 

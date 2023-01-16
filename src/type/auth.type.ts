@@ -3,7 +3,7 @@ import { ILoginResponse } from '../interface/login';
 import { IRegister, IRegisterResponse } from '../interface/register';
 import { ResponseEntity, ResponseMessage } from '../interface/response-entity';
 import { INewAccessToken } from '../interface/token';
-import { LoginUserInput } from '../utility/login-validation';
+import { LoginUserInput } from '../utility/input-validation';
 import { TypedRequest, TypedResponse } from '../utility/typed-controller';
 
 export type RegisterRequestType = TypedRequest<Record<string, never>, IRegister>;
