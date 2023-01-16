@@ -32,6 +32,7 @@ export const isAuthenticate = async (req: UserRequest, res: Response, next: Next
 			req.user = user;
 			next();
 		}
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	} catch (err: any) {
 		return res.status(500).json({ message: err.message });
 	}
