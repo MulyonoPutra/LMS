@@ -16,9 +16,7 @@ export const isAuthenticate = async (
 		if (authorization) {
 			const token = authorization.slice(7, authorization.length);
 			if (!token) {
-				return res
-					.status(400)
-					.json({ message: 'No Token Provided' });
+				return res.status(400).json({ message: 'No Token Provided' });
 			}
 
 			const decoded = jwt.verify(

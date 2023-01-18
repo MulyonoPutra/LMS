@@ -99,10 +99,7 @@ export const findById = async (
 ) => {
 	try {
 		const { id } = req.params;
-		const data = await ProductSchema.findOne(
-			{ _id: id },
-			hideAttributes
-		);
+		const data = await ProductSchema.findOne({ _id: id }, hideAttributes);
 		return res.status(200).json({
 			message: 'Data successfully retrieved',
 			data,

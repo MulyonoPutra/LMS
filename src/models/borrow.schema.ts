@@ -10,7 +10,7 @@ const borrowSchema = new Schema<Borrow>({
 	book: {
 		type: Schema.Types.ObjectId,
 		ref: 'Book',
-		required: true,
+		required: false,
 	},
 	dateBorrowed: {
 		type: String,

@@ -1,19 +1,11 @@
 import shelfSchema from '../models/shelf.schema';
-import { TypedResponse } from '../utility/typed-controller';
-import { ResponseEntity, ResponseMessage } from '../interface/response-entity';
-import { Shelf } from '../interface/shelf';
 import AppError from '../utility/app-error';
 import { NextFunction, Request } from 'express';
-
-export type ShelfResponseType = TypedResponse<
-	ResponseMessage | Partial<ResponseEntity<Shelf[]>>
->;
-export type FindOneShelfResponseType = TypedResponse<
-	ResponseMessage | Partial<ResponseEntity<Shelf | null>>
->;
-export type RemoveShelfResponseType = TypedResponse<
-	ResponseMessage | Partial<ResponseEntity<void>>
->;
+import {
+	FindOneShelfResponseType,
+	RemoveShelfResponseType,
+	ShelfResponseType,
+} from '../type/shelf.type';
 
 export const findAll = async (
 	req: Request,
