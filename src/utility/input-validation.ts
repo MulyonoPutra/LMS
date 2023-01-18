@@ -6,18 +6,24 @@ export const loginUserSchema = object({
 			invalid_type_error: 'Invalid Account',
 			required_error: 'Account is required',
 		}).email('Invalid account or password'),
-		password: string({ required_error: 'Password is required' })
-		.min(5, 'Invalid account or password'),
+		password: string({ required_error: 'Password is required' }).min(
+			5,
+			'Invalid account or password'
+		),
 	}),
 });
 
 export const RegisterUserSchema = object({
 	body: object({
 		username: string({ required_error: 'Username is required' }),
-		account: string({ required_error: 'Email is required' }).email('Invalid account or password'),
-		password: string({ required_error: 'Password is required' })
-		.min(5, 'Invalid account or password')
-	})
+		account: string({ required_error: 'Email is required' }).email(
+			'Invalid account or password'
+		),
+		password: string({ required_error: 'Password is required' }).min(
+			5,
+			'Invalid account or password'
+		),
+	}),
 });
 
 export type LoginUserInput = TypeOf<typeof loginUserSchema>['body'];
