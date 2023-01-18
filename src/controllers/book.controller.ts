@@ -13,6 +13,7 @@ import {
 import { Category } from '../interface/category';
 import { Book } from '../interface/book';
 import shelfSchema from '../models/shelf.schema';
+import { Shelf } from '../interface/shelf';
 
 export const findAll = async (
 	req: Request,
@@ -20,14 +21,20 @@ export const findAll = async (
 	next: NextFunction
 ) => {
 	try {
-		const book = await bookSchema
+		const shelfPopulated = { path: 'shelf', select: ['-book', '-__v'] };
+		const categoryPopulated = { path: 'category', select: '-__v' };
+
+		const book = (await bookSchema
 			.find({})
-			.populate(['category', 'shelf']);
+			.populate(shelfPopulated)
+			.populate(categoryPopulated)
+			.select('-__v')
+			.exec()) as unknown as Book[];
 		return res.status(200).json({
 			message: 'Successfully retrieved!',
 			data: book,
 		});
-	} catch (err) {
+	} catch (e) {
 		return next(new AppError('Internal Server Error!', 500));
 	}
 };
@@ -61,10 +68,7 @@ export const create = async (
 
 		let uploadAPI: UploadApiResponse;
 		try {
-			uploadAPI = await uploadCloudinary(
-				req.file.path,
-				'LMS/books'
-			);
+			uploadAPI = await uploadCloudinary(req.file.path, 'LMS/books');
 		} catch (e) {
 			return res.status(400).json({ message: 'Bad Request!' });
 		}
@@ -90,7 +94,7 @@ export const create = async (
 			},
 			category: {
 				_id: category?._id,
-				name: category?.name,
+				// name: category?.name,
 			},
 			shelf: {
 				_id: shelf?._id,
@@ -99,8 +103,10 @@ export const create = async (
 			},
 		});
 
-		await shelfSchema.findByIdAndUpdate(shelf?.id, {
-			book: newBook,
+		await shelfSchema.updateOne({
+			$push: {
+				book: newBook,
+			},
 		});
 
 		return res.status(201).json({
@@ -120,7 +126,7 @@ export const remove = async (
 	try {
 		const { id } = req.params;
 		let publicId: string | undefined;
-		const book = await bookSchema.findOne({ _id: id });
+		const book = (await bookSchema.findOne({ _id: id })) as Book;
 
 		if (book !== null) {
 			publicId = book.images.public_id;
@@ -147,6 +153,7 @@ export const update = async (
 	try {
 		const {
 			category: { id },
+			shelf: { id: shelfId },
 			title,
 			author,
 			isbn,
@@ -163,6 +170,7 @@ export const update = async (
 			_id: req.params.id,
 		})) as Book;
 		const category = (await categorySchema.findById(id)) as Category;
+		const shelf = (await shelfSchema.findById(shelfId)) as Shelf;
 
 		const {
 			images: { public_id: publicId },
@@ -176,6 +184,7 @@ export const update = async (
 			req.file.path,
 			'LMS/books'
 		);
+
 		const { originalname } = req.file;
 		const { secure_url, bytes, format, public_id } = uploadAPI;
 
@@ -197,11 +206,24 @@ export const update = async (
 				_id: category?.id,
 				name: category?.name,
 			},
+			shelf: {
+				_id: shelf?.id,
+				shelfNumber: shelf?.shelfNumber,
+				floor: shelf?.floor,
+			},
 		});
+
+		await shelfSchema.updateMany(
+			{ _id: book?.id },
+			{
+				$push: {
+					book: newBook,
+				},
+			}
+		);
 
 		return res.status(201).json({
 			message: 'Book Successfully Updated!',
-			data: newBook,
 		});
 	} catch (e) {
 		return next(new AppError('Internal Server Error!', 500));
