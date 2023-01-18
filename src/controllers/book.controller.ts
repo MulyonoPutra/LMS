@@ -15,21 +15,17 @@ import { Book } from '../interface/book';
 import shelfSchema from '../models/shelf.schema';
 import { Shelf } from '../interface/shelf';
 
-export const findAll = async (
-	req: Request,
-	res: BookResponseType,
-	next: NextFunction
-) => {
+export const findAll = async (req: Request, res: BookResponseType, next: NextFunction) => {
 	try {
 		const shelfPopulated = { path: 'shelf', select: ['-book', '-__v'] };
 		const categoryPopulated = { path: 'category', select: '-__v' };
 
-		const book = (await bookSchema
-			.find({})
-			.populate(shelfPopulated)
-			.populate(categoryPopulated)
-			.select('-__v')
-			.exec()) as unknown as Book[];
+		const book = (await bookSchema.find({})
+										.populate(shelfPopulated)
+										.populate(categoryPopulated)
+										.select('-__v')
+										.exec()) as unknown as Book[];
+
 		return res.status(200).json({
 			message: 'Successfully retrieved!',
 			data: book,
@@ -39,11 +35,7 @@ export const findAll = async (
 	}
 };
 
-export const findById = async (
-	req: Request,
-	res: FindOneBookResponseType,
-	next: NextFunction
-) => {
+export const findById = async (req: Request, res: FindOneBookResponseType, next: NextFunction) => {
 	try {
 		const { id } = req.params;
 		const data = await bookSchema.findOne({ _id: id });
@@ -56,11 +48,7 @@ export const findById = async (
 	}
 };
 
-export const create = async (
-	req: BookRequestType,
-	res: FindOneBookResponseType,
-	next: NextFunction
-) => {
+export const create = async (req: BookRequestType, res: FindOneBookResponseType, next: NextFunction) => {
 	try {
 		if (!req.file) {
 			return res.status(400).json({ message: 'No file uploaded!' });
@@ -118,11 +106,7 @@ export const create = async (
 	}
 };
 
-export const remove = async (
-	req: Request,
-	res: RemoveBookResponseType,
-	next: NextFunction
-) => {
+export const remove = async (req: Request, res: RemoveBookResponseType, next: NextFunction) => {
 	try {
 		const { id } = req.params;
 		let publicId: string | undefined;
@@ -135,6 +119,14 @@ export const remove = async (
 		if (publicId != undefined || publicId != null) {
 			await cloudinary.uploader.destroy(publicId);
 		}
+
+		await shelfSchema.updateOne({
+			$pull: {
+				book: {
+					_id: book.id,
+				},
+			},
+		});
 
 		await bookSchema.findByIdAndRemove(id);
 		return res.status(200).json({
