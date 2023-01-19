@@ -6,14 +6,11 @@ import {
 	RemoveShelfResponseType,
 	ShelfResponseType,
 } from '../type/shelf.type';
+import {Shelf} from "../interface/shelf";
 
-export const findAll = async (
-	req: Request,
-	res: ShelfResponseType,
-	next: NextFunction
-) => {
+export const findAll = async (req: Request, res: ShelfResponseType, next: NextFunction) => {
 	try {
-		const data = await shelfSchema.find({}).populate('book');
+		const data = await shelfSchema.find({}).populate('book').select('-__v') as unknown as Shelf[];
 		return res.status(200).json({
 			message: 'Successfully retrieved!',
 			data,
