@@ -63,10 +63,7 @@ export const create = async (req: BookRequestType, res: FindOneBookResponseType,
 
 		const { originalname: filename } = req.file;
 		const { secure_url, bytes, format, public_id } = uploadAPI;
-		const {
-			category: { id },
-			shelf: { id: shelfId },
-		} = req.body;
+		const { category: { id }, shelf: { id: shelfId } } = req.body;
 
 		const category = await categorySchema.findById(id);
 		const shelf = await shelfSchema.findById(shelfId);
@@ -137,11 +134,7 @@ export const remove = async (req: Request, res: RemoveBookResponseType, next: Ne
 	}
 };
 
-export const update = async (
-	req: Request,
-	res: FindOneBookResponseType,
-	next: NextFunction
-) => {
+export const update = async (req: Request, res: FindOneBookResponseType, next: NextFunction) => {
 	try {
 		const {
 			category: { id },
@@ -164,18 +157,13 @@ export const update = async (
 		const category = (await categorySchema.findById(id)) as Category;
 		const shelf = (await shelfSchema.findById(shelfId)) as Shelf;
 
-		const {
-			images: { public_id: publicId },
-		} = book;
+		const { images: { public_id: publicId } } = book;
 
 		if (publicId != null) {
 			await cloudinary.uploader.destroy(publicId);
 		}
 
-		const uploadAPI: UploadApiResponse = await uploadCloudinary(
-			req.file.path,
-			'LMS/books'
-		);
+		const uploadAPI: UploadApiResponse = await uploadCloudinary(req.file.path, 'LMS/books');
 
 		const { originalname } = req.file;
 		const { secure_url, bytes, format, public_id } = uploadAPI;
