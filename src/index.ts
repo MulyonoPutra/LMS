@@ -7,6 +7,8 @@ import cookieParser from 'cookie-parser';
 import { DBConnection } from './config/db-connection';
 import { Environment } from './config/environment';
 import { v2 as cloudinary } from 'cloudinary';
+import swaggerUi from 'swagger-ui-express';
+import * as swaggerDocument from '../swagger.json';
 
 dotenv.config();
 
@@ -25,6 +27,7 @@ app.use(express.json());
 app.use(helmet());
 app.use(cookieParser());
 app.use(routes);
+app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use((err: any, req: Request, res: Response) => {
 	err.status = err.status || 'error';
