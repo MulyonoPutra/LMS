@@ -14,7 +14,7 @@ export const findAll = async (
 	next: NextFunction
 ) => {
 	try {
-		const data = await categorySchema.find({});
+		const data = await categorySchema.find({}).select('-__v');
 		return res.status(200).json({
 			message: 'Successfully retrieved!',
 			data,
@@ -31,7 +31,7 @@ export const findById = async (
 ) => {
 	try {
 		const { id } = req.params;
-		const data = await categorySchema.findOne({ _id: id });
+		const data = await categorySchema.findOne({ _id: id }).select('-__v');
 		return res.status(200).json({
 			message: 'Data successfully retrieved',
 			data,
