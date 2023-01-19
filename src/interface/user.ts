@@ -3,6 +3,7 @@ import { Images } from './images';
 import { Request } from 'express';
 
 export interface IUser extends Document {
+	id?: string;
 	username: string;
 	account: string;
 	password: string;
