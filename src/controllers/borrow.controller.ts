@@ -9,21 +9,30 @@ import bookSchema from '../models/book.schema';
 import { IUser } from '../interface/user';
 import { Book } from '../interface/book';
 
-export type BorrowResponseType = TypedResponse<
-	ResponseMessage | Partial<ResponseEntity<Borrow[]>>
->;
-export type BorrowFindOneResponseType = TypedResponse<
-	ResponseMessage | Partial<ResponseEntity<Borrow | null>>
->;
+export type BorrowResponseType = TypedResponse<ResponseMessage | Partial<ResponseEntity<Borrow[]>>>;
+export type BorrowFindOneResponseType = TypedResponse<ResponseMessage | Partial<ResponseEntity<Borrow | null>>>;
 export type BorrowRequestType = TypedRequest<Record<string, never>, Borrow>;
 
-export const findAll = async (
-	req: Request,
-	res: BorrowResponseType,
-	next: NextFunction
-) => {
+export const findAll = async (req: Request, res: BorrowResponseType, next: NextFunction) => {
 	try {
-		const data = await borrowSchema.find({});
+		const hideProperties = ['-password', '-createdAt', '-updatedAt', '-refreshToken', '-__v', '-images'];
+		const userPopulated = { path: 'user', select: hideProperties };
+		const bookPopulated = {
+			path: 'book',
+			populate: [
+				{ path: 'category', select: '-__v' },
+				{ path: 'shelf', select: ['-book', '-__v'] }
+			],
+			select: '-__v'
+		};
+
+		const data = await borrowSchema
+										.find({})
+										.populate(userPopulated)
+										.populate(bookPopulated)
+										.select('-__v')
+										.exec();
+
 		return res.status(200).json({
 			message: 'Successfully retrieved!',
 			data,
@@ -33,11 +42,7 @@ export const findAll = async (
 	}
 };
 
-export const findById = async (
-	req: Request,
-	res: BorrowFindOneResponseType,
-	next: NextFunction
-) => {
+export const findById = async (req: Request, res: BorrowFindOneResponseType, next: NextFunction) => {
 	try {
 		const { id } = req.params;
 		const data = await borrowSchema.findOne({ _id: id });
@@ -50,17 +55,36 @@ export const findById = async (
 	}
 };
 
-export const create = async (
-	req: Request,
-	res: Response,
-	next: NextFunction
-) => {
-	console.log('--------------------------------');
-	console.log(req.body);
-	console.log('--------------------------------');
+export const create = async (req: Request, res: Response, next: NextFunction) => {
 
-	return res.status(201).json({
-		message: 'New Category Created!',
-		data: req.body,
-	});
+	try {
+		const hideProperties = ['-password', '-createdAt', '-updatedAt', '-refreshToken', '-__v', '-images'];
+		const categoryPopulated = { path: 'category', select: '-__v' };
+		const shelfPopulated = { path: 'shelf', select: ['-book', '-__v'] };
+
+		const { userId, bookId } = req.body;
+		const user = await userSchema.findById(userId).select(hideProperties) as IUser;
+		const book = await bookSchema
+										.findById(bookId)
+										.populate(shelfPopulated)
+										.populate(categoryPopulated)
+										.select('-__v') as Book;
+
+		const newBorrow = await borrowSchema.create({
+			...req.body,
+			user: {
+				_id: user.id,
+			},
+			book: {
+				_id: book.id
+			}
+		})
+
+		return res.status(201).json({
+			message: 'New Category Created!',
+			data: newBorrow
+		});
+	} catch (e) {
+		return next(new AppError('Internal Server Error!', 500));
+	}
 };
