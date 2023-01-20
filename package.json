@@ -8,7 +8,7 @@
   "scripts": {
     "start": "node build/index.js",
     "dev": "ts-node-dev --respawn src/index.ts",
-    "build": "rm -rf build && node esbuild.js",
+    "build": "tsc",
     "lint": "eslint src/** --ext .ts"
   },
   "dependencies": {
