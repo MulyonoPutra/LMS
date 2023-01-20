@@ -13,7 +13,7 @@ import * as swaggerDocument from '../swagger.json';
 dotenv.config();
 
 const app: Express = express();
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 8080
 
 cloudinary.config({
 	cloud_name: Environment.cloudinaryName,
