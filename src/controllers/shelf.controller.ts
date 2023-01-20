@@ -64,6 +64,7 @@ export const create = async (req: Request, res: FindOneShelfResponseType, next: 
 			message: 'New Shelf Successfully Created!',
 			data: newShelf,
 		});
+
 	} catch (e) {
 		return next(new AppError('Internal Server Error!', 500));
 	}

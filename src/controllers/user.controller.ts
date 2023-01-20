@@ -18,7 +18,7 @@ const hideAttributes = {
 
 export const findAll = async (req: Request, res: UserResponseType, next: NextFunction) => {
 	try {
-		const data: IUserDetails[] = await UserSchema.find({}, hideAttributes);
+		const data = await UserSchema.find({}, hideAttributes);
 		return res.status(200).json({
 			message: 'Successfully retrieved!',
 			data,
@@ -42,6 +42,7 @@ export const findById = async (req: Request, res: FindOneUserResponseType, next:
 };
 
 export const update = async (req: Request, res: Response, next: NextFunction) => {
+
 	const hideProperties = [
 		'-createdAt',
 		'-updatedAt',

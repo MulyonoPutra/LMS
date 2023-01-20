@@ -43,7 +43,13 @@ export const findAll = async (req: Request, res: ReturnsResponseType, next: Next
 export const findById = async (req: Request, res: ReturnsFindOneResponseType, next: NextFunction) => {
 	try {
 		const { id } = req.params;
-		const data = await returnsSchema.findOne({ _id: id });
+		const data = await returnsSchema	
+											.findOne({ _id: id })
+											.populate(userPopulated)
+											.populate(bookPopulated)
+											.populate(borrowPopulated)
+											.select('-__v')
+											.exec() as unknown as Returns;
 
 		return res.status(200).json({
 			message: 'Successfully retrieved',

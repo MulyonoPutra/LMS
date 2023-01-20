@@ -19,11 +19,11 @@ import { categoryPopulated, shelfPopulated } from '../utility/custom-response';
 export const findAll = async (req: Request, res: BookResponseType, next: NextFunction) => {
 	try {
 		const book = (await bookSchema
-										.find({})
-										.populate(shelfPopulated)
-										.populate(categoryPopulated)
-										.select('-__v')
-										.exec()) as unknown as Book[];
+																	.find({})
+																	.populate(shelfPopulated)
+																	.populate(categoryPopulated)
+																	.select('-__v')
+																	.exec()) as unknown as Book[];
 
 		return res.status(200).json({
 			message: 'Successfully retrieved!',
@@ -38,11 +38,11 @@ export const findById = async (req: Request, res: FindOneBookResponseType, next:
 	try {
 		const { id } = req.params;
 		const data = (await bookSchema
-										.findOne({ _id: id })
-										.populate(shelfPopulated)
-										.populate(categoryPopulated)
-										.select('-__v')
-										.exec()) as unknown as Book;
+																	.findOne({ _id: id })
+																	.populate(shelfPopulated)
+																	.populate(categoryPopulated)
+																	.select('-__v')
+																	.exec()) as unknown as Book;
 
 		return res.status(200).json({
 			message: 'Data successfully retrieved',

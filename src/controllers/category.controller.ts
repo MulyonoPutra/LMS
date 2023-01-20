@@ -30,6 +30,7 @@ export const findById = async (req: Request, res: FindOneCategoryResponseType, n
 			message: 'Data successfully retrieved',
 			data,
 		});
+
 	} catch (e) {
 		return next(new AppError('Internal Server Error!', 500));
 	}

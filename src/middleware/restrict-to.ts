@@ -5,8 +5,7 @@ export interface UserRequest extends Request {
 	user?: IUser;
 }
 
-export const RestrictTo =
-	(allowed: string) =>
+export const RestrictTo = (allowed: string) =>
 	(req: UserRequest, res: Response, next: NextFunction) => {
 		if (allowed === req.user?.role) {
 			next();
