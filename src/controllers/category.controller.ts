@@ -7,6 +7,7 @@ import {
 	FindOneCategoryResponseType,
 	RemoveCategoryResponseType,
 } from '../type/category.type';
+import { Category } from 'src/interface/category';
 
 export const findAll = async (req: Request, res: CategoryResponseType, next: NextFunction) => {
 	try {
@@ -23,7 +24,7 @@ export const findAll = async (req: Request, res: CategoryResponseType, next: Nex
 export const findById = async (req: Request, res: FindOneCategoryResponseType, next: NextFunction) => {
 	try {
 		const { id } = req.params;
-		const data = await categorySchema.findOne({ _id: id }).select('-__v');
+		const data = await categorySchema.findOne({ _id: id }).select('-__v') as unknown as Category;
 
 		return res.status(200).json({
 			message: 'Data successfully retrieved',
