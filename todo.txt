@@ -1,4 +1,0 @@
-TODO:
-- Config Cloudinary
-- Update user profile
-- Add new fields for avatar
