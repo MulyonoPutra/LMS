@@ -6,7 +6,6 @@ import { IDecoded } from '../interface/decoded';
 import { IUser } from '../interface/user';
 import UserSchema from '../models/user.schema';
 import { avatarGenerator } from '../utility/avatar-generator';
-import { errorResponse } from '../utility/error-response';
 import {
 	generateAccessToken,
 	generateRefreshToken,
@@ -21,10 +20,10 @@ import {
 	RegisterRequestType,
 	RegisterResponseType,
 } from '../type/auth.type';
+import AppError from '../utility/app-error';
+import { NextFunction } from 'express';
 
-export const register =
-	(role?: string) =>
-	async (req: RegisterRequestType, res: RegisterResponseType) => {
+export const register = (role?: string) => async (req: RegisterRequestType, res: RegisterResponseType, next: NextFunction) => {
 		try {
 			const { username, account, password } = req.body;
 			const users = await UserSchema.findOne({ account });
@@ -40,12 +39,12 @@ export const register =
 			const avatar = avatarGenerator();
 
 			await new UserSchema({
-				username,
-				account,
-				password: hashPassword,
-				avatar,
-				role,
-			}).save();
+									username,
+									account,
+									password: hashPassword,
+									avatar,
+									role,
+								}).save();
 
 			const data = { username, account };
 
@@ -54,14 +53,15 @@ export const register =
 				data,
 			});
 		} catch (e) {
-			return errorResponse(e, res);
+			return next(new AppError('Internal Server Error!', 500));
 		}
 	};
 
-export const login = async (req: LoginRequestType, res: LoginResponseType) => {
+export const login = async (req: LoginRequestType, res: LoginResponseType, next: NextFunction) => {
 	try {
 		const { account, password } = req.body;
 		const user = await UserSchema.findOne({ account });
+
 		if (!user) {
 			return res.status(400).json({
 				message: 'User not found!',
@@ -70,18 +70,14 @@ export const login = async (req: LoginRequestType, res: LoginResponseType) => {
 
 		await loginSuccessful(user, password, res);
 	} catch (e) {
-		return errorResponse(e, res);
+		return next(new AppError('Internal Server Error!', 500));
 	}
 };
 
-const loginSuccessful = async (
-	user: IUser,
-	password: string,
-	res: LoginResponseType
-) => {
+const loginSuccessful = async (user: IUser, password: string, res: LoginResponseType) => {
+
 	const isValid = await bcrypt.compare(password, user.password);
 
-	// Check if password is valid
 	if (!isValid) {
 		return res.status(500).json({ message: 'Password is incorrect!' });
 	}
@@ -102,31 +98,26 @@ const loginSuccessful = async (
 	});
 };
 
-export const refreshToken = async (
-	req: RefreshTokenRequestType,
-	res: RefreshTokenResponseType
-) => {
+export const refreshToken = async (req: RefreshTokenRequestType, res: RefreshTokenResponseType, next: NextFunction) => {
 	try {
 		const token = req.cookies?.refreshToken;
+
 		if (!token) {
 			return res.status(200).json({
 				message: 'Refresh token not found! Please login again.',
 			});
 		}
 
-		const decoded = jwt.verify(
-			token,
-			`${Environment.refreshTokenSecret}`
-		) as IDecoded;
+		const decoded = jwt.verify(token, `${Environment.refreshTokenSecret}`) as IDecoded;
+
 		if (!decoded.id) {
 			return res.status(400).json({
 				message: 'Refresh token is invalid!',
 			});
 		}
 
-		const user = await UserSchema.findOne({ _id: decoded.id }).select(
-			'+password'
-		);
+		const user = await UserSchema.findOne({ _id: decoded.id }).select('+password');
+
 		if (!user) {
 			return res.status(400).json({
 				message: 'This account does not exist!',
@@ -137,14 +128,11 @@ export const refreshToken = async (
 
 		return res.status(200).json({ accessToken: newAccessToken });
 	} catch (e) {
-		console.log(e);
+		return next(new AppError('Internal Server Error!', 500));
 	}
 };
 
-export const logout = async (
-	req: LogoutRequestType,
-	res: NewAccessTokenResponseType
-) => {
+export const logout = async (req: LogoutRequestType, res: NewAccessTokenResponseType, next: NextFunction) => {
 	try {
 		const token = req.cookies?.refreshToken;
 		if (!token) {
@@ -152,6 +140,7 @@ export const logout = async (
 		}
 
 		const user = await UserSchema.find({ refreshToken: token });
+		
 		if (!user) {
 			return res.status(400).json({
 				message: 'User not found!',
@@ -163,10 +152,12 @@ export const logout = async (
 			{ _id: userId },
 			{ refreshToken: null }
 		);
+
 		res.clearCookie('refreshToken');
+
 		return res.status(200).json({ message: 'Successfully logout!' });
 	} catch (e) {
-		return errorResponse(e, res);
+		return next(new AppError('Internal Server Error!', 500));
 	}
 };
 

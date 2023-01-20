@@ -16,11 +16,7 @@ const hideAttributes = {
 	refreshToken: 0,
 };
 
-export const findAll = async (
-	req: Request,
-	res: UserResponseType,
-	next: NextFunction
-) => {
+export const findAll = async (req: Request, res: UserResponseType, next: NextFunction) => {
 	try {
 		const data: IUserDetails[] = await UserSchema.find({}, hideAttributes);
 		return res.status(200).json({
@@ -32,11 +28,7 @@ export const findAll = async (
 	}
 };
 
-export const findById = async (
-	req: Request,
-	res: FindOneUserResponseType,
-	next: NextFunction
-) => {
+export const findById = async (req: Request, res: FindOneUserResponseType, next: NextFunction) => {
 	try {
 		const { id } = req.params;
 		const data = await UserSchema.findOne({ _id: id }, hideAttributes);
@@ -49,11 +41,7 @@ export const findById = async (
 	}
 };
 
-export const update = async (
-	req: Request,
-	res: Response,
-	next: NextFunction
-) => {
+export const update = async (req: Request, res: Response, next: NextFunction) => {
 	const hideProperties = [
 		'-createdAt',
 		'-updatedAt',
@@ -103,9 +91,8 @@ export const update = async (
 			},
 		};
 
-		user = await UserSchema.findOneAndUpdate({ _id: id }, newUser, {
-			new: true,
-		}).select(hideProperties);
+		user = await UserSchema.findOneAndUpdate({ _id: id }, newUser, { new: true }).select(hideProperties);
+		
 		return res.status(200).json({ message: 'Success', data: user });
 	} catch (e) {
 		return next(new AppError('Internal Server Error!', 500));

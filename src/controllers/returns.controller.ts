@@ -19,20 +19,18 @@ import {
 	ReturnsFindOneResponseType,
 	ReturnsResponseType,
 } from '../type/returns.type';
+import { Returns } from 'src/interface/returns';
 
-export const findAll = async (
-	req: Request,
-	res: ReturnsResponseType,
-	next: NextFunction
-) => {
+export const findAll = async (req: Request, res: ReturnsResponseType, next: NextFunction) => {
 	try {
 		const data = await returnsSchema
-			.find({})
-			.populate(userPopulated)
-			.populate(bookPopulated)
-			.populate(borrowPopulated)
-			.select('-__v')
-			.exec();
+										.find({})
+										.populate(userPopulated)
+										.populate(bookPopulated)
+										.populate(borrowPopulated)
+										.select('-__v')
+										.exec() as unknown as Returns[];
+
 		return res.status(200).json({
 			message: 'Successfully retrieved!',
 			data,
@@ -42,14 +40,11 @@ export const findAll = async (
 	}
 };
 
-export const findById = async (
-	req: Request,
-	res: ReturnsFindOneResponseType,
-	next: NextFunction
-) => {
+export const findById = async (req: Request, res: ReturnsFindOneResponseType, next: NextFunction) => {
 	try {
 		const { id } = req.params;
 		const data = await returnsSchema.findOne({ _id: id });
+
 		return res.status(200).json({
 			message: 'Successfully retrieved',
 			data,
@@ -59,22 +54,19 @@ export const findById = async (
 	}
 };
 
-export const create = async (
-	req: Request,
-	res: Response,
-	next: NextFunction
-) => {
+export const create = async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const { borrowId, userId, bookId } = req.body;
 
 		const user = (await userSchema
-			.findById(userId)
-			.select(hideUserProps)) as IUser;
+										.findById(userId)
+										.select(hideUserProps)) as IUser;
+
 		const book = (await bookSchema
-			.findById(bookId)
-			.populate(shelfPopulated)
-			.populate(categoryPopulated)
-			.select('-__v')) as Book;
+										.findById(bookId)
+										.populate(shelfPopulated)
+										.populate(categoryPopulated)
+										.select('-__v')) as Book;
 
 		const borrow = (await borrowSchema.findById(borrowId)) as Borrow;
 		const newReturns = await returnsSchema.create({
@@ -94,6 +86,7 @@ export const create = async (
 			message: 'New Category Created!',
 			data: newReturns,
 		});
+		
 	} catch (e) {
 		return next(new AppError('Internal Server Error!', 500));
 	}

@@ -17,11 +17,7 @@ const hideAttributes = {
 	updatedAt: 0,
 };
 
-export const findAll = async (
-	req: Request,
-	res: ProductResponseType,
-	next: NextFunction
-) => {
+export const findAll = async (req: Request, res: ProductResponseType, next: NextFunction) => {
 	try {
 		const data = await ProductSchema.find({}, hideAttributes);
 		return res.status(200).json({
@@ -33,11 +29,7 @@ export const findAll = async (
 	}
 };
 
-export const create = async (
-	req: ProductRequestType,
-	res: NewProductResponseType,
-	next: NextFunction
-) => {
+export const create = async (req: ProductRequestType, res: NewProductResponseType, next: NextFunction) => {
 	try {
 		const { name, price, quantity } = req.body;
 		const newProduct = new ProductSchema({ name, price, quantity });
@@ -53,10 +45,7 @@ export const create = async (
 	}
 };
 
-export const createProduct = async (
-	req: Request,
-	res: NewProductResponseType
-) => {
+export const createProduct = async (req: Request, res: NewProductResponseType) => {
 	try {
 		if (!req.file) {
 			return res.status(400).json({ message: 'No file uploaded!' });
@@ -92,11 +81,7 @@ export const createProduct = async (
 	}
 };
 
-export const findById = async (
-	req: Request,
-	res: FindOneProductResponseType,
-	next: NextFunction
-) => {
+export const findById = async (req: Request, res: FindOneProductResponseType, next: NextFunction) => {
 	try {
 		const { id } = req.params;
 		const data = await ProductSchema.findOne({ _id: id }, hideAttributes);
@@ -109,11 +94,7 @@ export const findById = async (
 	}
 };
 
-export const remove = async (
-	req: Request,
-	res: RemoveProductResponseType,
-	next: NextFunction
-) => {
+export const remove = async (req: Request, res: RemoveProductResponseType, next: NextFunction) => {
 	try {
 		const { id } = req.params;
 		let publicId: string | undefined;
@@ -138,11 +119,7 @@ export const remove = async (
 	}
 };
 
-export const update = async (
-	req: Request,
-	res: FindOneProductResponseType,
-	next: NextFunction
-) => {
+export const update = async (req: Request, res: FindOneProductResponseType, next: NextFunction) => {
 	try {
 		const { id } = req.params;
 		const { name, price, quantity } = req.body;

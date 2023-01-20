@@ -8,30 +8,24 @@ import {
 } from '../type/shelf.type';
 import { Shelf } from '../interface/shelf';
 
-export const findAll = async (
-	req: Request,
-	res: ShelfResponseType,
-	next: NextFunction
-) => {
+export const findAll = async (req: Request, res: ShelfResponseType, next: NextFunction) => {
 	try {
 		const data = (await shelfSchema
-			.find({})
-			.populate('book')
-			.select('-__v')) as unknown as Shelf[];
+										.find({})
+										.populate('book')
+										.select('-__v')) as unknown as Shelf[];
+
 		return res.status(200).json({
 			message: 'Successfully retrieved!',
 			data,
 		});
+
 	} catch (e) {
 		return next(new AppError('Internal Server Error!', 500));
 	}
 };
 
-export const findById = async (
-	req: Request,
-	res: FindOneShelfResponseType,
-	next: NextFunction
-) => {
+export const findById = async (req: Request, res: FindOneShelfResponseType, next: NextFunction) => {
 	try {
 		const { id } = req.params;
 		const data = await shelfSchema.findOne({ _id: id });
@@ -44,11 +38,7 @@ export const findById = async (
 	}
 };
 
-export const remove = async (
-	req: Request,
-	res: RemoveShelfResponseType,
-	next: NextFunction
-) => {
+export const remove = async (req: Request, res: RemoveShelfResponseType, next: NextFunction) => {
 	try {
 		const { id } = req.params;
 
@@ -61,11 +51,7 @@ export const remove = async (
 	}
 };
 
-export const create = async (
-	req: Request,
-	res: FindOneShelfResponseType,
-	next: NextFunction
-) => {
+export const create = async (req: Request, res: FindOneShelfResponseType, next: NextFunction) => {
 	try {
 		const { shelfNumber, floor } = req.body;
 

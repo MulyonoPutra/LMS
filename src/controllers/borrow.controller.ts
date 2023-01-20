@@ -16,26 +16,18 @@ import {
 	userPopulated,
 } from '../utility/custom-response';
 
-export type BorrowResponseType = TypedResponse<
-	ResponseMessage | Partial<ResponseEntity<Borrow[]>>
->;
-export type BorrowFindOneResponseType = TypedResponse<
-	ResponseMessage | Partial<ResponseEntity<Borrow | null>>
->;
+export type BorrowResponseType = TypedResponse<ResponseMessage | Partial<ResponseEntity<Borrow[]>>>;
+export type BorrowFindOneResponseType = TypedResponse<ResponseMessage | Partial<ResponseEntity<Borrow | null>>>;
 export type BorrowRequestType = TypedRequest<Record<string, never>, Borrow>;
 
-export const findAll = async (
-	req: Request,
-	res: BorrowResponseType,
-	next: NextFunction
-) => {
+export const findAll = async (req: Request, res: BorrowResponseType, next: NextFunction) => {
 	try {
 		const data = await borrowSchema
-			.find({})
-			.populate(userPopulated)
-			.populate(bookPopulated)
-			.select('-__v')
-			.exec();
+										.find({})
+										.populate(userPopulated)
+										.populate(bookPopulated)
+										.select('-__v')
+										.exec() as unknown as Borrow[];
 
 		return res.status(200).json({
 			message: 'Successfully retrieved!',
@@ -46,11 +38,7 @@ export const findAll = async (
 	}
 };
 
-export const findById = async (
-	req: Request,
-	res: BorrowFindOneResponseType,
-	next: NextFunction
-) => {
+export const findById = async (req: Request, res: BorrowFindOneResponseType, next: NextFunction) => {
 	try {
 		const { id } = req.params;
 		const data = await borrowSchema.findOne({ _id: id });
@@ -63,21 +51,18 @@ export const findById = async (
 	}
 };
 
-export const create = async (
-	req: Request,
-	res: Response,
-	next: NextFunction
-) => {
+export const create = async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const { userId, bookId } = req.body;
 		const user = (await userSchema
-			.findById(userId)
-			.select(hideUserProps)) as IUser;
+										.findById(userId)
+										.select(hideUserProps)) as IUser;
+
 		const book = (await bookSchema
-			.findById(bookId)
-			.populate(shelfPopulated)
-			.populate(categoryPopulated)
-			.select('-__v')) as Book;
+										.findById(bookId)
+										.populate(shelfPopulated)
+										.populate(categoryPopulated)
+										.select('-__v')) as Book;
 
 		const newBorrow = await borrowSchema.create({
 			...req.body,
@@ -93,6 +78,7 @@ export const create = async (
 			message: 'New Category Created!',
 			data: newBorrow,
 		});
+		
 	} catch (e) {
 		return next(new AppError('Internal Server Error!', 500));
 	}

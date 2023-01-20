@@ -8,11 +8,7 @@ import {
 	RemoveCategoryResponseType,
 } from '../type/category.type';
 
-export const findAll = async (
-	req: Request,
-	res: CategoryResponseType,
-	next: NextFunction
-) => {
+export const findAll = async (req: Request, res: CategoryResponseType, next: NextFunction) => {
 	try {
 		const data = await categorySchema.find({}).select('-__v');
 		return res.status(200).json({
@@ -24,14 +20,11 @@ export const findAll = async (
 	}
 };
 
-export const findById = async (
-	req: Request,
-	res: FindOneCategoryResponseType,
-	next: NextFunction
-) => {
+export const findById = async (req: Request, res: FindOneCategoryResponseType, next: NextFunction) => {
 	try {
 		const { id } = req.params;
 		const data = await categorySchema.findOne({ _id: id }).select('-__v');
+
 		return res.status(200).json({
 			message: 'Data successfully retrieved',
 			data,
@@ -41,17 +34,14 @@ export const findById = async (
 	}
 };
 
-export const create = async (
-	req: CategoryRequestType,
-	res: FindOneCategoryResponseType,
-	next: NextFunction
-) => {
+export const create = async (req: CategoryRequestType, res: FindOneCategoryResponseType, next: NextFunction) => {
 	try {
 		const { name, description } = req.body;
 		const newCategory = await categorySchema.create({
 			name,
 			description,
 		});
+
 		return res.status(201).json({
 			message: 'New Category Created!',
 			data: newCategory,
@@ -61,11 +51,7 @@ export const create = async (
 	}
 };
 
-export const remove = async (
-	req: Request,
-	res: RemoveCategoryResponseType,
-	next: NextFunction
-) => {
+export const remove = async (req: Request, res: RemoveCategoryResponseType, next: NextFunction) => {
 	try {
 		const { id } = req.params;
 
@@ -78,11 +64,7 @@ export const remove = async (
 	}
 };
 
-export const update = async (
-	req: Request,
-	res: FindOneCategoryResponseType,
-	next: NextFunction
-) => {
+export const update = async (req: Request, res: FindOneCategoryResponseType, next: NextFunction) => {
 	try {
 		const { id } = req.params;
 		const { name, description } = req.body;
@@ -90,9 +72,11 @@ export const update = async (
 			name,
 			description,
 		});
+
 		return res.status(200).json({
 			message: 'Data successfully updated',
 		});
+		
 	} catch (e) {
 		return next(new AppError('Internal Server Error!', 500));
 	}
