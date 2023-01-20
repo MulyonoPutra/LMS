@@ -6,6 +6,7 @@
   "author": "Mulyono Putra",
   "license": "MIT",
   "scripts": {
+    "start": "node build/index.js",
     "dev": "ts-node-dev --respawn src/index.ts",
     "build": "rm -rf build && node esbuild.js",
     "lint": "eslint src/** --ext .ts"
