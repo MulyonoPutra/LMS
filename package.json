@@ -6,7 +6,7 @@
   "author": "Mulyono Putra",
   "license": "MIT",
   "scripts": {
-    "start": "node build/index.js",
+    "start": "node ./build/index.js",
     "dev": "ts-node-dev --respawn src/index.ts",
     "build": "tsc",
     "lint": "eslint src/** --ext .ts"
