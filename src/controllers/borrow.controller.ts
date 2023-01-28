@@ -42,11 +42,11 @@ export const findById = async (req: Request, res: BorrowFindOneResponseType, nex
 	try {
 		const { id } = req.params;
 		const data = await borrowSchema
-																		.findOne({ _id: id })
-																		.populate(userPopulated)
-																		.populate(bookPopulated)
-																		.select('-__v')
-																		.exec() as unknown as Borrow;
+										.findOne({ _id: id })
+										.populate(userPopulated)
+										.populate(bookPopulated)
+										.select('-__v')
+										.exec() as unknown as Borrow;
 
 		return res.status(200).json({
 			message: 'Successfully retrieved',
@@ -61,14 +61,14 @@ export const create = async (req: Request, res: Response, next: NextFunction) =>
 	try {
 		const { userId, bookId } = req.body;
 		const user = (await userSchema
-																	.findById(userId)
-																	.select(hideUserProps)) as IUser;
+									.findById(userId)
+									.select(hideUserProps)) as IUser;
 
 		const book = (await bookSchema
-																	.findById(bookId)
-																	.populate(shelfPopulated)
-																	.populate(categoryPopulated)
-																	.select('-__v')) as Book;
+									.findById(bookId)
+									.populate(shelfPopulated)
+									.populate(categoryPopulated)
+									.select('-__v')) as Book;
 
 		const newBorrow = await borrowSchema.create({
 					...req.body,

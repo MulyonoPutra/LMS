@@ -1,7 +1,7 @@
 {
-  "name": "express-boilerplate",
+  "name": "Library Management System",
   "version": "1.0.0",
-  "description": "Boilerplate using Express & Typescript",
+  "description": "Library Management System Web Application",
   "main": "index.js",
   "author": "Mulyono Putra",
   "license": "MIT",

@@ -1,7 +1,6 @@
 /* eslint-disable prefer-const */
 import { NextFunction, Request, Response } from 'express';
 
-import { IUserDetails } from '../interface/user';
 import UserSchema from '../models/user.schema';
 import { FindOneUserResponseType, UserResponseType } from '../type/user.type';
 import AppError from '../utility/app-error';

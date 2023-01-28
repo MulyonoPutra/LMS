@@ -83,7 +83,7 @@ const loginSuccessful = async (user: IUser, password: string, res: LoginResponse
 	}
 
 	const accessToken = generateAccessToken({ id: user._id });
-	const refreshToken = generateRefreshToken({ id: user._id }, res);
+	const refreshToken = generateRefreshToken({ id: user._id });
 
 	await UserSchema.findOneAndUpdate({ _id: user._id }, { refreshToken });
 
